@@ -1,0 +1,524 @@
+{
+  "id": "scifi-theme",
+  "name": "scifi-theme",
+  "kind": "app",
+  "version": "0.1.0",
+  "icon": "book-open",
+  "route": "scifi-theme",
+  "category": "site",
+  "publish": "custom",
+  "customization": [
+    {
+      "type": "colors",
+      "id": "theme",
+      "label": "Theme",
+      "presets": [
+        {
+          "id": "default",
+          "name": "NERV Terminal",
+          "values": {
+            "background": "#0a0e17",
+            "primary": "#7c8cff",
+            "secondary": "#121826",
+            "foreground": "#dce3f0",
+            "line": "rgba(124,140,255,0.22)",
+            "hud": "#ff8c42",
+            "muted": "#7186a8",
+            "panel": "rgba(6,8,16,0.94)",
+            "font": "sans"
+          }
+        },
+        {
+          "id": "nerv-terminal",
+          "name": "NERV Terminal",
+          "values": {
+            "background": "#0a0e17",
+            "primary": "#7c8cff",
+            "secondary": "#121826",
+            "foreground": "#dce3f0",
+            "line": "rgba(124,140,255,0.22)",
+            "hud": "#ff8c42",
+            "muted": "#7186a8",
+            "panel": "rgba(6,8,16,0.94)",
+            "font": "sans"
+          }
+        },
+        {
+          "id": "magi-core",
+          "name": "MAGI Core",
+          "values": {
+            "background": "#0c0814",
+            "primary": "#c084fc",
+            "secondary": "#16101f",
+            "foreground": "#ece7f7",
+            "line": "rgba(192,132,252,0.25)",
+            "hud": "#ff8c42",
+            "muted": "#9a8ab8",
+            "panel": "rgba(8,6,14,0.94)",
+            "font": "sans"
+          }
+        },
+        {
+          "id": "parchment",
+          "name": "Parchment",
+          "values": {
+            "background": "#f4eedd",
+            "primary": "#8a5a2b",
+            "secondary": "#fffdf4",
+            "foreground": "#2c2418",
+            "line": "rgba(60,45,20,0.2)",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "midnight",
+          "name": "Midnight",
+          "values": {
+            "background": "#0e1116",
+            "primary": "#7c8cff",
+            "secondary": "#171c24",
+            "foreground": "#e8ebf0",
+            "line": "rgba(255,255,255,0.12)",
+            "font": "sans"
+          }
+        },
+        {
+          "id": "verdant",
+          "name": "Verdant",
+          "values": {
+            "background": "#0f1512",
+            "primary": "#59b87d",
+            "secondary": "#16211b",
+            "foreground": "#e6efe8",
+            "line": "rgba(255,255,255,0.12)",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "paper",
+          "name": "Paper",
+          "values": {
+            "background": "#ffffff",
+            "primary": "#3366cc",
+            "secondary": "#f8f9fa",
+            "foreground": "#202122",
+            "line": "#a2a9b1",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "sepia",
+          "name": "Sepia",
+          "values": {
+            "background": "#f8f1e3",
+            "primary": "#8b5a2b",
+            "secondary": "#fffaf0",
+            "foreground": "#3a2f24",
+            "line": "#c8b99c",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "slate",
+          "name": "Slate",
+          "values": {
+            "background": "#14161a",
+            "primary": "#8ab4f8",
+            "secondary": "#1c1f26",
+            "foreground": "#e3e5e8",
+            "line": "rgba(255,255,255,0.14)",
+            "font": "sans"
+          }
+        },
+        {
+          "id": "nebula",
+          "name": "Nebula",
+          "values": {
+            "background": "#151021",
+            "primary": "#c084fc",
+            "secondary": "#1f1833",
+            "foreground": "#ece7f7",
+            "line": "rgba(255,255,255,0.14)",
+            "font": "sans"
+          }
+        },
+        {
+          "id": "ember",
+          "name": "Ember",
+          "values": {
+            "background": "#141210",
+            "primary": "#fb923c",
+            "secondary": "#201b16",
+            "foreground": "#f2ece5",
+            "line": "rgba(255,255,255,0.13)",
+            "font": "sans"
+          }
+        },
+        {
+          "id": "tide",
+          "name": "Tide",
+          "values": {
+            "background": "#0d1a1c",
+            "primary": "#2dd4bf",
+            "secondary": "#132528",
+            "foreground": "#e2f0f0",
+            "line": "rgba(255,255,255,0.13)",
+            "font": "sans"
+          }
+        },
+        {
+          "id": "netscape",
+          "name": "Netscape",
+          "values": {
+            "background": "#c0c0c0",
+            "primary": "#0000ee",
+            "secondary": "#ffffff",
+            "foreground": "#000000",
+            "line": "#808080",
+            "font": "mono"
+          }
+        },
+        {
+          "id": "terminal",
+          "name": "Terminal",
+          "values": {
+            "background": "#000000",
+            "primary": "#33ff33",
+            "secondary": "#0a0f0a",
+            "foreground": "#33ff33",
+            "line": "#1d5c1d",
+            "font": "mono"
+          }
+        },
+        {
+          "id": "hotdog",
+          "name": "Hot Dog Stand",
+          "values": {
+            "background": "#ffff00",
+            "primary": "#ff0000",
+            "secondary": "#ffffff",
+            "foreground": "#000000",
+            "line": "#ff0000",
+            "font": "mono"
+          }
+        },
+        {
+          "id": "enchanted-forest",
+          "name": "Enchanted Forest",
+          "values": {
+            "background": "#f5efd7",
+            "primary": "#4a4a4a",
+            "secondary": "#f1e8d2",
+            "foreground": "#331e1e",
+            "line": "rgba(51, 30, 30, 0.06)",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "mystic-twilight",
+          "name": "Mystic Twilight",
+          "values": {
+            "background": "#1a1a2e",
+            "primary": "#6a5acd",
+            "secondary": "#16213e",
+            "foreground": "#e7e7e7",
+            "line": "rgba(255, 255, 255, 0.08)",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "nordic-frost",
+          "name": "Nordic Frost",
+          "values": {
+            "background": "#f0f5f9",
+            "primary": "#3498db",
+            "secondary": "#e1e5ea",
+            "foreground": "#1e3a5f",
+            "line": "rgba(201, 214, 222, 0.19)",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "autumn-ember",
+          "name": "Autumn Ember",
+          "values": {
+            "background": "#fdf6e3",
+            "primary": "#d35400",
+            "secondary": "#f9e8d2",
+            "foreground": "#5c3836",
+            "line": "rgba(92, 56, 54, 0.13)",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "midnight-scholar",
+          "name": "Midnight Scholar",
+          "values": {
+            "background": "#212b38",
+            "primary": "#4dabf7",
+            "secondary": "#2a3542",
+            "foreground": "#e9ecef",
+            "line": "rgba(233, 236, 239, 0.08)",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "gothic-royal",
+          "name": "Gothic Royal",
+          "values": {
+            "background": "#111111",
+            "primary": "#9370db",
+            "secondary": "#1a1a1a",
+            "foreground": "#f0f0f0",
+            "line": "rgba(255, 255, 255, 0.06)",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "site-parchment",
+          "name": "Wiki Parchment",
+          "values": {
+            "background": "#f8f9fa",
+            "primary": "#3366cc",
+            "secondary": "#eaecf0",
+            "foreground": "#202122",
+            "line": "rgba(0, 0, 0, 0.1)",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "site-dark",
+          "name": "Wiki Dark",
+          "values": {
+            "background": "#1f1f23",
+            "primary": "#559be6",
+            "secondary": "#27272d",
+            "foreground": "#e3e3e8",
+            "line": "rgba(255, 255, 255, 0.1)",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "synthwave-matrix",
+          "name": "Synthwave Matrix",
+          "values": {
+            "background": "#0a0a1a",
+            "primary": "#ff00ff",
+            "secondary": "#12122a",
+            "foreground": "#e0ffe0",
+            "line": "#1a1a3a",
+            "font": "serif"
+          }
+        },
+        {
+          "id": "world",
+          "name": "Your World",
+          "values": {
+            "background": "#101014",
+            "primary": "#9aa4b2",
+            "secondary": "#181820",
+            "font": "sans"
+          }
+        }
+      ],
+      "default": "default",
+      "tokens": {
+        "background": {
+          "label": "Background"
+        },
+        "primary": {
+          "label": "Accent"
+        },
+        "secondary": {
+          "label": "Secondary"
+        },
+        "foreground": {
+          "label": "Text"
+        },
+        "line": {
+          "label": "Border"
+        }
+      },
+      "allowCustom": true
+    },
+    {
+      "type": "font",
+      "id": "heading",
+      "label": "Heading font",
+      "options": [
+        {
+          "id": "default",
+          "name": "Default",
+          "family": "inherit",
+          "source": "system"
+        },
+        {
+          "id": "libre-baskerville",
+          "name": "Libre Baskerville",
+          "family": "'Libre Baskerville', Georgia, serif",
+          "source": "google"
+        },
+        {
+          "id": "playfair-display",
+          "name": "Playfair Display",
+          "family": "'Playfair Display', Georgia, serif",
+          "source": "google"
+        },
+        {
+          "id": "cinzel",
+          "name": "Cinzel",
+          "family": "'Cinzel', Georgia, serif",
+          "source": "google"
+        },
+        {
+          "id": "lora",
+          "name": "Lora",
+          "family": "'Lora', Georgia, serif",
+          "source": "google"
+        },
+        {
+          "id": "eb-garamond",
+          "name": "EB Garamond",
+          "family": "'EB Garamond', Georgia, serif",
+          "source": "google"
+        },
+        {
+          "id": "georgia",
+          "name": "Georgia",
+          "family": "Georgia, 'Times New Roman', serif",
+          "source": "system"
+        },
+        {
+          "id": "space-grotesk",
+          "name": "Space Grotesk",
+          "family": "'Space Grotesk', ui-sans-serif, sans-serif",
+          "source": "google"
+        },
+        {
+          "id": "inter",
+          "name": "Inter",
+          "family": "'Inter', ui-sans-serif, system-ui, sans-serif",
+          "source": "google"
+        },
+        {
+          "id": "system-sans",
+          "name": "System Sans",
+          "family": "ui-sans-serif, system-ui, sans-serif",
+          "source": "system"
+        },
+        {
+          "id": "verdana",
+          "name": "Verdana",
+          "family": "Verdana, Geneva, sans-serif",
+          "source": "system"
+        },
+        {
+          "id": "space-mono",
+          "name": "Space Mono",
+          "family": "'Space Mono', 'Courier New', monospace",
+          "source": "google"
+        },
+        {
+          "id": "courier",
+          "name": "Courier New",
+          "family": "'Courier New', Courier, monospace",
+          "source": "system"
+        }
+      ],
+      "default": "space-mono"
+    },
+    {
+      "type": "font",
+      "id": "sans",
+      "label": "Body font",
+      "options": [
+        {
+          "id": "default",
+          "name": "Default",
+          "family": "inherit",
+          "source": "system"
+        },
+        {
+          "id": "libre-baskerville",
+          "name": "Libre Baskerville",
+          "family": "'Libre Baskerville', Georgia, serif",
+          "source": "google"
+        },
+        {
+          "id": "playfair-display",
+          "name": "Playfair Display",
+          "family": "'Playfair Display', Georgia, serif",
+          "source": "google"
+        },
+        {
+          "id": "cinzel",
+          "name": "Cinzel",
+          "family": "'Cinzel', Georgia, serif",
+          "source": "google"
+        },
+        {
+          "id": "lora",
+          "name": "Lora",
+          "family": "'Lora', Georgia, serif",
+          "source": "google"
+        },
+        {
+          "id": "eb-garamond",
+          "name": "EB Garamond",
+          "family": "'EB Garamond', Georgia, serif",
+          "source": "google"
+        },
+        {
+          "id": "georgia",
+          "name": "Georgia",
+          "family": "Georgia, 'Times New Roman', serif",
+          "source": "system"
+        },
+        {
+          "id": "space-grotesk",
+          "name": "Space Grotesk",
+          "family": "'Space Grotesk', ui-sans-serif, sans-serif",
+          "source": "google"
+        },
+        {
+          "id": "inter",
+          "name": "Inter",
+          "family": "'Inter', ui-sans-serif, system-ui, sans-serif",
+          "source": "google"
+        },
+        {
+          "id": "system-sans",
+          "name": "System Sans",
+          "family": "ui-sans-serif, system-ui, sans-serif",
+          "source": "system"
+        },
+        {
+          "id": "verdana",
+          "name": "Verdana",
+          "family": "Verdana, Geneva, sans-serif",
+          "source": "system"
+        },
+        {
+          "id": "space-mono",
+          "name": "Space Mono",
+          "family": "'Space Mono', 'Courier New', monospace",
+          "source": "google"
+        },
+        {
+          "id": "courier",
+          "name": "Courier New",
+          "family": "'Courier New', Courier, monospace",
+          "source": "system"
+        }
+      ],
+      "default": "space-grotesk"
+    }
+  ],
+  "needs": [],
+  "capabilities": {
+    "readsWorld": true,
+    "writesWorld": true,
+    "sharing": true
+  },
+  "entryModule": "@/app"
+}
