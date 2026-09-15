@@ -24,3 +24,8 @@ npm-debug.log*
 # Environment
 .env
 .env.local
+
+# Temporary and scratch files
+clean.js
+*.zip
+src/app_reference.txt
