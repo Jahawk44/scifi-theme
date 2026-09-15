@@ -2920,127 +2920,6 @@ function EntryHero({ mediaId, docType, glyph, style, variant = "tile" }: {
   )
 }
 
-// ── FrozenCardBody ────────────────────────────────────────────────────────
-// Renders the baked Prosemirror/Yjs content from snapshot.documents[id] as
-// styled rich text. Used on the published site instead of <HostEmbed>, which
-// requires a live collab socket that doesn't exist there.
-//
-// VVD card documents bake their body as a Prosemirror doc JSON under the
-// "body" or "content" key (the exact key depends on the card's codec field
-// name — we try both). Prosemirror JSON shape:
-//   { type: "doc", content: [ { type, attrs, content, marks } ] }
-// Marks: { type: "bold" | "italic" | "link", attrs?: { href } }
-//
-// We render a typed subset sufficient for typical world-lore card bodies.
-// Unknown node/mark types fall back to their inline text.
-type PmNode = { type: string; text?: string; attrs?: Record<string, unknown>; content?: PmNode[]; marks?: { type: string; attrs?: Record<string, unknown> }[] }
-
-function pmInline(node: PmNode, T: WikiTheme, key: number): ReactNode {
-  let el: ReactNode = node.text ?? ""
-  if (node.marks) {
-    for (const m of node.marks) {
-      if (m.type === "bold") el = <strong key={key}>{el}</strong>
-      else if (m.type === "italic") el = <em key={key}>{el}</em>
-      else if (m.type === "link" && m.attrs?.href) el = <a key={key} href={String(m.attrs.href)} target="_blank" rel="noopener noreferrer" style={{ color: T.link ?? HUD.amber, textDecoration: "underline" }}>{el}</a>
-    }
-  }
-  return el
-}
-
-function pmBlock(node: PmNode, T: WikiTheme, idx: number): ReactNode {
-  const kids = (node.content ?? []).map((c, i) => pmInline(c, T, i))
-  const base: CSSProperties = { margin: "0 0 0.9em", lineHeight: 1.7 }
-  switch (node.type) {
-    case "paragraph": return <p key={idx} style={base}>{kids.length ? kids : <br />}</p>
-    case "heading": {
-      const lvl = typeof node.attrs?.level === "number" ? node.attrs.level : 2
-      const sizes: Record<number, string> = { 1: "1.5em", 2: "1.25em", 3: "1.1em" }
-      return <p key={idx} style={{ ...base, fontWeight: 700, fontSize: sizes[lvl] ?? "1em", marginTop: "1.1em" }}>{kids}</p>
-    }
-    case "bullet_list": return <ul key={idx} style={{ ...base, paddingLeft: "1.4em" }}>{(node.content ?? []).map((li, i) => <li key={i}>{(li.content ?? []).map((b, j) => pmBlock(b, T, j))}</li>)}</ul>
-    case "ordered_list": return <ol key={idx} style={{ ...base, paddingLeft: "1.4em" }}>{(node.content ?? []).map((li, i) => <li key={i}>{(li.content ?? []).map((b, j) => pmBlock(b, T, j))}</li>)}</ol>
-    case "blockquote": return <blockquote key={idx} style={{ ...base, borderLeft: "3px solid " + HUD.blueDim, paddingLeft: "1em", opacity: 0.8 }}>{(node.content ?? []).map((b, i) => pmBlock(b, T, i))}</blockquote>
-    case "horizontal_rule": return <hr key={idx} style={{ border: "none", borderTop: "1px solid " + HUD.blueFaint, margin: "1.2em 0" }} />
-    default: return kids.length ? <p key={idx} style={base}>{kids}</p> : null
-  }
-}
-
-function FrozenCardBody({ docContent, open, T, isPhone, BODY_FF }: {
-  docContent: Record<string, unknown>
-  open: WikiDocRow
-  T: WikiTheme
-  isPhone: boolean
-  BODY_FF: string
-}) {
-  // Try common field names for the prose body. VVD card codecs use "body"
-  // by convention but some use "content" or "prose".
-  const rawBody = docContent.body ?? docContent.content ?? docContent.prose ?? null
-
-  // Also collect simple scalar fields to show as metadata
-  const metaFields: { label: string; value: string }[] = []
-  for (const [k, v] of Object.entries(docContent)) {
-    if (k === "body" || k === "content" || k === "prose") continue
-    if (typeof v === "string" && v.trim()) metaFields.push({ label: k, value: v.trim() })
-    else if (typeof v === "number") metaFields.push({ label: k, value: String(v) })
-  }
-
-  let pmDoc: PmNode | null = null
-  if (rawBody && typeof rawBody === "object" && !Array.isArray(rawBody)) {
-    const rb = rawBody as Record<string, unknown>
-    if (rb.type === "doc" && Array.isArray(rb.content)) pmDoc = rb as PmNode
-  }
-
-  const hasContent = pmDoc || metaFields.length > 0
-
-  return (
-    <div style={{
-      padding: isPhone ? "18px 20px 32px" : "24px 36px 48px",
-      overflowY: "auto", height: "100%",
-      fontFamily: BODY_FF, color: T.ink ?? HUD.ink, fontSize: 15, lineHeight: 1.7,
-    }}>
-      {/* Entry title + type */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 1.2, color: HUD.mutedDark, textTransform: "uppercase", marginBottom: 4 }}>
-          {open.documentType}
-        </div>
-        <h2 style={{ margin: 0, fontSize: isPhone ? 22 : 28, fontWeight: 700, color: T.heading ?? HUD.ink, lineHeight: 1.2 }}>
-          {open.name}
-        </h2>
-        {open.aliases?.length > 0 && (
-          <div style={{ marginTop: 4, fontFamily: MONO, fontSize: 11, color: HUD.mutedDark }}>
-            Also known as: {open.aliases.join(", ")}
-          </div>
-        )}
-      </div>
-
-      {/* Prose body */}
-      {pmDoc && (
-        <div style={{ maxWidth: 740 }}>
-          {(pmDoc.content ?? []).map((block, i) => pmBlock(block, T, i))}
-        </div>
-      )}
-
-      {/* Scalar metadata fields (non-prose) */}
-      {metaFields.length > 0 && (
-        <div style={{ marginTop: pmDoc ? 24 : 0, display: "grid", gridTemplateColumns: "max-content 1fr", gap: "6px 16px", maxWidth: 560 }}>
-          {metaFields.map(({ label, value }) => (
-            <>
-              <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: 0.5, color: HUD.mutedDark, textTransform: "uppercase", paddingTop: 1 }}>{label}</span>
-              <span style={{ fontSize: 13, color: T.ink ?? HUD.ink, overflowWrap: "anywhere" }}>{value}</span>
-            </>
-          ))}
-        </div>
-      )}
-
-      {!hasContent && (
-        <div style={{ fontFamily: MONO, fontSize: 12, color: HUD.mutedDark, opacity: 0.7 }}>
-          No content available for this entry.
-        </div>
-      )}
-    </div>
-  )
-}
-
 // SlowEmbedNotice — HostEmbed doesn't expose a load/error callback, so we
 // have no way to know whether an embedded document is still loading, failed
 // silently, or is a tool type that simply never resolves on a read-only
@@ -3123,20 +3002,13 @@ function EmbedDiagnostic({ docId, documentType, children }: { docId: string; doc
   return <div ref={ref} className="w-full h-full" style={{ width: "100%", height: "100%" }}>{children}</div>
 }
 
-// WikiTheme — just the colour tokens WikiPage uses internally, so we can
-// pass the computed theme into FrozenCardBody without threading the full preset.
-type WikiTheme = { ink?: string; heading?: string; card?: string; link?: string; bg?: string }
-
-function WikiPage({ editing, values, page, actions, entryPath, frozenDocs, frozenDocContent }: {
+function WikiPage({ editing, values, page, actions, entryPath, frozenDocs }: {
   editing: boolean
   values: AppCustomizationValues
   page: PageState
   actions: PageActions | null
   entryPath: string | null
   frozenDocs?: WikiDocRow[] | null
-  /** snapshot.documents keyed by doc id — used on the published site to render
-   *  card bodies without needing a live HostEmbed / collab socket. */
-  frozenDocContent?: Record<string, Record<string, unknown>> | null
 }) {
   const meta = useWorldMeta()
   // On a published page there is no live socket back to the world's catalog
@@ -3692,41 +3564,20 @@ function WikiPage({ editing, values, page, actions, entryPath, frozenDocs, froze
                   </button>
                 </div>
 
-                {/* FIX (Bug 1 — published embed 0px height, card branch): This container
-                    must use `height` (not `minHeight`) to give children a DEFINITE height
-                    for CSS % resolution. CSS2.1 §10.5: a percentage height resolves only
-                    against a definite parent height; `min-height` alone is not definite.
-                    The same bug was fixed in EmbedDiagnostic itself (min-h-full → h-full);
-                    this is the parent container that needed the same treatment. On published
-                    pages HostEmbed rendered 0 children because its height:100% cascaded
-                    through EmbedDiagnostic's height:100% to resolve against this div's
-                    auto height (not its min-height). Since the content IS always a HostEmbed
-                    (not flowing text that grows), a fixed px height is correct here. */}
-                <div style={{ position: "relative", height: isPhone ? 480 : isTablet ? 560 : 640, margin: isPhone ? "18px 18px 40px" : "22px 34px 56px", borderRadius: 6, border: "1px solid " + HUD.blueFaint, background: "rgba(10,14,23,0.35)", overflow: "hidden" }}>
+                {/* minHeight here is a pixel FLOOR (not a %), which is the
+                    actual fix: a canvas/graph-style embed sizing itself as a
+                    % of an ancestor with no definite height computes to 0.
+                    Text-flow "card" content doesn't need this (it just
+                    grows), but giving every article the same floor is
+                    harmless and keeps this branch resilient if a future
+                    entity type behaves like a canvas too. */}
+                <div style={{ position: "relative", minHeight: isPhone ? 480 : isTablet ? 560 : 640, margin: isPhone ? "18px 18px 40px" : "22px 34px 56px", borderRadius: 6, border: "1px solid " + HUD.blueFaint, background: "rgba(10,14,23,0.35)", overflow: "hidden" }}>
                   <span style={tickStyle("tl", dc.dim)} />
                   <span style={tickStyle("br", dc.dim)} />
-                  {frozenDocContent?.[open.id]
-                    ? (
-                      // Published site: HostEmbed needs a live collab socket that
-                      // doesn't exist here. Render the baked document content from
-                      // snapshot.documents[id] directly instead.
-                      <FrozenCardBody
-                        docContent={frozenDocContent[open.id]}
-                        open={open}
-                        T={T}
-                        isPhone={isPhone}
-                        BODY_FF={BODY_FF}
-                      />
-                    ) : (
-                      // Live editor: use HostEmbed as normal.
-                      <>
-                        <SlowEmbedNotice docId={open.id} />
-                        <EmbedDiagnostic docId={open.id} documentType={open.documentType}>
-                          <HostEmbed documentId={open.id} view="fullscreen" className="w-full h-full [&>*]:w-full [&>*]:h-full" />
-                        </EmbedDiagnostic>
-                      </>
-                    )
-                  }
+                  <SlowEmbedNotice docId={open.id} />
+                  <EmbedDiagnostic docId={open.id} documentType={open.documentType}>
+                    <HostEmbed documentId={open.id} view="fullscreen" className="w-full h-full [&>*]:w-full [&>*]:h-full" />
+                  </EmbedDiagnostic>
                 </div>
               </div>
             </div>
@@ -4183,75 +4034,35 @@ export function ScifiThemeBaked({ snapshot, settings, entryPath }: PublishedAppS
   const [page] = useState<PageState>(() => {
     const parsed = frozenPage(snapshot)
     if (parsed.solarBodies.length > 0) return parsed
+    // Fallback: nothing came through. Give the published site a working
+    // default solar system so it isn't just an empty canvas with a "NO
+    // NODES CHARTED YET" message.
     return { ...parsed, solarBodies: buildSeedBodies() }
   })
   const [docs] = useState<WikiDocRow[]>(() => frozenIndex(snapshot))
 
-  // snapshot.documents is null on the published site — the platform delivers
-  // the full document content blob via a separate fetch URL (docsPointer)
-  // rather than inlining it in the snapshot prop. We fetch it once on mount
-  // and pass it to WikiPage so FrozenCardBody can render card entries without
-  // needing a live HostEmbed / collab socket.
-  const [frozenDocContent, setFrozenDocContent] = useState<Record<string, Record<string, unknown>> | null>(() => {
-    // Try inline first — may be available in future platform versions or in
-    // dev/preview contexts where the blob isn't offloaded.
-    const snap = (snapshot ?? {}) as Record<string, unknown>
-    const raw = snap.documents
-    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-      const obj = raw as Record<string, unknown>
-      if (Object.keys(obj).length > 0) {
-        console.error("[baked] documents inline — ", Object.keys(obj).length, "docs")
-        return obj as Record<string, Record<string, unknown>>
-      }
-    }
-    return null
-  })
-
-  useEffect(() => {
-    if (frozenDocContent) return // already have inline content
-    const snap = (snapshot ?? {}) as Record<string, unknown>
-    const pointer = snap.docsPointer
-    if (!pointer || typeof pointer !== "string") {
-      console.error("[baked] no docsPointer — card bodies will not render on published site")
-      return
-    }
-    console.error("[baked] fetching docsPointer:", pointer)
-    fetch(pointer)
-      .then((r) => {
-        if (!r.ok) throw new Error("HTTP " + r.status)
-        return r.json()
-      })
-      .then((data: unknown) => {
-        if (data && typeof data === "object" && !Array.isArray(data)) {
-          const obj = data as Record<string, Record<string, unknown>>
-          console.error("[baked] docsPointer fetched — ", Object.keys(obj).length, "docs")
-          setFrozenDocContent(obj)
-        } else {
-          console.error("[baked] docsPointer fetch returned unexpected shape:", typeof data)
-        }
-      })
-      .catch((e) => console.error("[baked] docsPointer fetch failed:", e))
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // One-shot diagnostic
+  // Small one-shot diagnostic on the published site load — tells us what
+  // the bake actually delivered. Uses console.error so it survives any
+  // console level filtering.
   try {
     const snap = (snapshot ?? {}) as Record<string, unknown>
     const extra = (snap.extra && typeof snap.extra === "object" ? snap.extra : null) as Record<string, unknown> | null
+    const docsObj = snap.documents && typeof snap.documents === "object" ? (snap.documents as Record<string, unknown>) : null
     console.error(
-      "[baked] v14 — title:", JSON.stringify(page.title),
+      "[baked] page resolved — title:", JSON.stringify(page.title),
       "| solarBodies:", page.solarBodies.length,
+      "| banner:", JSON.stringify(page.bannerMediaId),
+      "| featured:", page.featuredIds.length,
+      "| extra.page was:", extra && "page" in extra ? (extra.page === null ? "null" : typeof extra.page) : "absent",
       "| index rows:", docs.length,
-      "| extra.page:", extra && "page" in extra ? (extra.page === null ? "null" : typeof extra.page) : "absent",
-      "| docsPointer:", JSON.stringify((snap as Record<string, unknown>).docsPointer ?? null),
-      "| documents inline:", snap.documents ? (typeof snap.documents === "object" && !Array.isArray(snap.documents) ? Object.keys(snap.documents as Record<string, unknown>).length + " keys" : typeof snap.documents) : "null/absent",
+      "| documents baked:", docsObj ? Object.keys(docsObj).length : 0,
       "| entryPath:", JSON.stringify(entryPath),
     )
   } catch (e) {
     console.error("[baked] diagnostic failed", e)
   }
 
-  return <WikiPage editing={false} values={frozenCustomization(settings)} page={page} actions={null} entryPath={entryPath} frozenDocs={docs} frozenDocContent={frozenDocContent} />
+  return <WikiPage editing={false} values={frozenCustomization(settings)} page={page} actions={null} entryPath={entryPath} frozenDocs={docs} />
 }
 
 const view = defineTool({

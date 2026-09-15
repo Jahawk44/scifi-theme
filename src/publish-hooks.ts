@@ -49,7 +49,7 @@ import type {
 //   console, invisible to you. All diagnostics below therefore use
 //   `console.error`, deliberately.
 // ─────────────────────────────────────────────────────────────────────────
-const BUILD_MARKER = "v14 — docsPointer fetch: ScifiThemeBaked fetches snapshot.documents from docsPointer URL on mount so FrozenCardBody can render card entries without HostEmbed"
+const BUILD_MARKER = "v10 — try ctx.appState() for extra.page per the official wiki reference docs"
 
 // Document types that legitimately have no content — documentContent()
 // returning null for these is not an error.
@@ -222,72 +222,6 @@ export async function bake(ctx: PublishBakeContext): Promise<PublishedAppContent
     )
   }
 
-  // ── Bug 2 fix: read solarBodies from the scifi-theme document directly ────
-  // ctx.appState() returns the platform's home-grid layout store
-  // ({config, pageSelections}) instead of this wiki's useCollabState — a
-  // confirmed platform-side bug (see shape-check log above). But
-  // ctx.documentContent() IS confirmed reliable (19/25 docs baked
-  // successfully). The wiki's own useCollabState lives in the world document
-  // whose documentType === "scifi-theme" — that is the document this tool
-  // opens (see ToolRegistry in app.tsx). We read it here as the fallback
-  // source of solarBodies (and the rest of the page state) for extra.page.
-  //
-  // IMPORTANT: we do NOT yet know the exact shape ctx.documentContent()
-  // returns for a field.list<SolarBody>()-based codec — the Yjs CRDT layer
-  // may serialize lists differently from a plain JS array. The diagnostic
-  // below logs the exact shape so a future session can verify without
-  // re-deriving it from scratch. frozenPage() in app.tsx handles the
-  // parsing safely with a parseSolarBodies() validator that rejects bad rows.
-  let wikiDocContent: Record<string, unknown> | null = null
-  const wikiDoc = docs.find((d) => (d as any).documentType === "scifi-theme")
-  if (wikiDoc) {
-    try {
-      const rawContent = await ctx.documentContent(wikiDoc.id)
-      if (rawContent && typeof rawContent === "object") {
-        wikiDocContent = rawContent as Record<string, unknown>
-        const wikiKeys = Object.keys(wikiDocContent).join(", ")
-        const solarBodiesVal = wikiDocContent.solarBodies
-        console.error(
-          "[bake] scifi-theme doc content — id:", wikiDoc.id,
-          "| top-level keys:", wikiKeys,
-          "| solarBodies type:", Array.isArray(solarBodiesVal) ? "array[" + (solarBodiesVal as unknown[]).length + "]" : typeof solarBodiesVal,
-        )
-      } else {
-        console.error("[bake] scifi-theme doc content — returned", typeof rawContent, "(null or non-object, cannot extract solarBodies)")
-      }
-    } catch (e) {
-      console.error("[bake] scifi-theme doc content — documentContent() threw:", e)
-    }
-  } else {
-    console.error(
-      "[bake] scifi-theme doc content — no document with documentType='scifi-theme' found in",
-      docs.length, "docs. documentTypes found:",
-      [...new Set((docs as any[]).map((d) => d.documentType))].join(", "),
-    )
-  }
-
-  // Build the extra.page from wikiDocContent (when it looks right) or
-  // ctx.appState() (when that looks right). wikiDocContent is tried first
-  // because ctx.appState() is confirmed broken on this platform version.
-  // Both shape-checks are logged above; on future platform updates, if
-  // ctx.appState() starts returning the real wiki state, this logic will
-  // naturally prefer it once looksLikePageState is true.
-  const pageForExtra = looksLikePageState
-    ? appState
-    : (wikiDocContent && (
-        "title" in wikiDocContent ||
-        "solarBodies" in wikiDocContent ||
-        "bannerMediaId" in wikiDocContent
-      ) ? wikiDocContent : null)
-
-  if (pageForExtra && pageForExtra !== appState) {
-    const bodiesVal = (pageForExtra as Record<string, unknown>).solarBodies
-    console.error(
-      "[bake] using wikiDocContent for extra.page — solarBodies:",
-      Array.isArray(bodiesVal) ? bodiesVal.length + " items" : typeof bodiesVal,
-    )
-  }
-
   console.error(
     "[bake] returning payload — index:", docs.length,
     "refs:", Object.keys(refs).length,
@@ -302,11 +236,12 @@ export async function bake(ctx: PublishBakeContext): Promise<PublishedAppContent
     mediaUrls,
     entityTypes,
     documents,
-    // extra.page carries the wiki's own useCollabState snapshot for the
-    // published site renderer (frozenPage() in app.tsx reads it). If both
-    // ctx.appState() and ctx.documentContent() fail, this is null and
+    // extra.page is the wiki's own useCollabState (title/subtitle/banner/
+    // sectionOrder/featuredIds/solarBodies) per docs.beta.vvd.world/workshop/
+    // reference/wiki. We only trust it when the shape check above passed —
+    // otherwise we fall back to null exactly as before, and frozenPage() /
     // ScifiThemeBaked's seeded-solar-system fallback keeps the published
     // site working either way.
-    extra: { worldName: world?.name, page: pageForExtra ?? null },
+    extra: { worldName: world?.name, page: looksLikePageState ? appState : null },
   }
 }
