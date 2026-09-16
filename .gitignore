@@ -1,0 +1,31 @@
+# VVD runtime data
+.vvd/
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# Temporary and scratch files
+clean.js
+*.zip
+src/app_reference.txt
